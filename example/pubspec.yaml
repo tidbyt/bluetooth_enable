@@ -1,9 +1,9 @@
 name: bluetooth_enable_example
 description: Demonstrates how to use the bluetooth_enable plugin.
-publish_to: 'none'
+publish_to: "none"
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.17.0"
 
 dependencies:
   flutter:
@@ -25,7 +25,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

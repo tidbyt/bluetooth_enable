@@ -63,14 +63,14 @@ class _MyAppState extends StatelessWidget {
             children: <Widget>[
               Text("Press the button to request turning on Bluetooth"),
               SizedBox(height: 20.0),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: (() {
                   enableBT();
                 }),
                 child: Text('Request to turn on Bluetooth'),
               ),
               SizedBox(height: 10.0),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: (() {
                   customEnableBT(context);
                 }),
