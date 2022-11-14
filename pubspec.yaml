@@ -1,7 +1,7 @@
 name: bluetooth_enable
 description: Flutter plugin to turn on bluetooth within app (Android only)
-version: 0.1.2
-# authors:
+version: 0.1.3
+# authors: 
 #   - Hui
 homepage: https://github.com/huitingyeong/bluetooth_enable
 

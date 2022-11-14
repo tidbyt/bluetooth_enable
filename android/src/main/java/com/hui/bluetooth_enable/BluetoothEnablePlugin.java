@@ -9,6 +9,9 @@ import android.content.Intent;
 import android.util.Log;
 import android.content.BroadcastReceiver;
 
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -19,12 +22,12 @@ import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 import io.flutter.plugin.common.PluginRegistry;
 
 /** FlutterBluePlugin */
-public class BluetoothEnablePlugin implements MethodCallHandler, ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
+public class BluetoothEnablePlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
     private static final String TAG = "BluetoothEnablePlugin";
-    private final Registrar registrar;
-    private final Activity activity;
-    private final MethodChannel channel;
-    private final BluetoothManager mBluetoothManager;
+    private Registrar registrar;
+    private Activity activity;
+    private MethodChannel channel;
+    private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private Result pendingResult;
 
@@ -46,6 +49,11 @@ public class BluetoothEnablePlugin implements MethodCallHandler, ActivityResultL
         this.mBluetoothAdapter = mBluetoothManager.getAdapter();
         channel.setMethodCallHandler(this);
     }
+
+    public BluetoothEnablePlugin(){
+        this.onDetachedFromEngine(null);
+    }
+
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
@@ -138,5 +146,56 @@ public class BluetoothEnablePlugin implements MethodCallHandler, ActivityResultL
         System.out.println("TWO");
 
         return false;
+    }
+
+
+    /* FlutterPlugin implementation */
+
+    @Override
+    public void onAttachedToEngine(FlutterPluginBinding binding) {
+        this.channel = new MethodChannel(binding.getBinaryMessenger(), "bluetooth_enable");
+    }
+
+    @Override
+    public void onDetachedFromEngine(FlutterPluginBinding binding) {
+        this.registrar = null;
+        this.activity = null;
+        this.channel = null;
+        this.mBluetoothAdapter = null;
+        this.mBluetoothManager = null;
+    }
+
+
+    /* ActivityAware implementation */
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding activityPluginBinding) {
+        this.initPluginFromPluginBinding(activityPluginBinding);
+    }
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding activityPluginBinding) {
+        this.initPluginFromPluginBinding(activityPluginBinding);
+    }
+    private void initPluginFromPluginBinding (ActivityPluginBinding activityPluginBinding) {
+        this.activity = activityPluginBinding.getActivity();
+        this.mBluetoothManager = (BluetoothManager) this.activity.getSystemService(Context.BLUETOOTH_SERVICE);
+        this.mBluetoothAdapter = mBluetoothManager.getAdapter();
+
+        activityPluginBinding.addActivityResultListener(this);
+        activityPluginBinding.addRequestPermissionsResultListener(this);
+
+        this.channel.setMethodCallHandler(this);
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        this.releaseResources();
+    }
+    @Override
+    public void onDetachedFromActivity() {
+        this.releaseResources();
+    }
+    private void releaseResources() {
+        this.activity.finish();
     }
 }
